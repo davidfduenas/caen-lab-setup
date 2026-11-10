@@ -14,12 +14,11 @@ The DAQ code, utilities and HV monitor were written by **Bruno P. Gelli**. The D
 
 ## Quick start (native install)
 
-1. Clone, then put your CAEN files in `docker/caen/` (see "What you must do yourself" below).
+1. Clone the repository. The CAEN libraries are included (`docker/caen/caen-installed.tgz`).
 2. Run the installer:
 ```bash
 git clone --recursive https://github.com/davidfduenas/caen-lab-setup.git
 cd caen-lab-setup
-# put your CAEN files in docker/caen/
 ./install.sh
 ```
 For Docker instead, see "Run everything in Docker" below.
@@ -32,14 +31,14 @@ For Docker instead, see "Run everything in Docker" below.
 2. Creates the HV monitor's Python environment and installs its requirements (`influxdb`, `pyserial`, `pyusb`).
 3. Installs InfluxDB v1 and Grafana from their apt repositories, starts them and creates the database `NOvA_DTG_CAEN`.
 4. Finds ROOT. With `--install-root` it downloads ROOT 6.32.04 on Ubuntu 22.04 or 24.04.
-5. Installs the CAEN libraries system-wide from the files in `docker/caen/` (or `--caen-dir`), unless they are already installed.
+5. Installs the CAEN libraries system-wide from `docker/caen/` (or `--caen-dir`), unless they are already installed.
 6. Compiles `daq_threshold_v1.0.0` and `read_temp_influx`.
 7. Adds you to the `dialout` group and, if you agree, creates the udev rule that names the HV supply `/dev/ttyDT5471P0`.
 8. Writes `lab-env.sh` for the launchers in `bin/`.
 
 ## What you must do yourself
 
-- **Provide the CAEN libraries.** They are CAEN's files and are not in this repository. Put them in `docker/caen/` (git ignores that folder): either `caen-installed.tgz` made on a machine where they work (`tar -czf ~/caen-installed.tgz /usr/lib/libCAEN* /usr/include/CAEN*`), or the original CAENVME, CAENComm and CAENDigitizer packages from CAEN's website. The lab uses CAENVME v4.1.3, CAENComm v1.8.0 and CAENDigitizer v2.19.0; see [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md), section 2. If the libraries are already installed on the machine, `install.sh` detects them and this is not needed.
+- **Nothing for the CAEN libraries in the standard case.** CAENVME v4.1.3, CAENComm v1.8.0 and CAENDigitizer v2.19.0 (the lab's versions) are included as `docker/caen/caen-installed.tgz`. They are CAEN's files; read [docker/caen/NOTICE.md](docker/caen/NOTICE.md). To use other versions, see [docker/caen/README.md](docker/caen/README.md).
 - **Install ROOT yourself** on any system other than Ubuntu 22.04/24.04, from <https://root.cern/install/>.
 - **Set up Grafana**: add an InfluxDB data source (`http://localhost:8086`, database `NOvA_DTG_CAEN`) and build or import dashboards.
 - Adapt site-specific settings (serial device, database name, trigger thresholds). They are listed in section 1 of [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md).
@@ -84,10 +83,9 @@ git submodule update --init --recursive
 
 The whole setup (InfluxDB, Grafana, and a container with ROOT, the CAEN libraries, the DAQ programs and the HV tools) can run in Docker. In short:
 
-1. On the machine where the CAEN libraries are installed, pack them: `tar -czf ~/caen-installed.tgz /usr/lib/libCAEN* /usr/include/CAEN*`.
-2. Put `caen-installed.tgz` in `docker/caen/` (git ignores it; do not publish it).
-3. `docker compose build`, then `docker compose -f docker-compose.yml -f docker-compose.hardware.yml up -d`.
-4. `docker compose exec daq hv-session` (or `daq-session`, or `scope`).
+1. The CAEN libraries are included (`docker/caen/caen-installed.tgz`; see [docker/caen/NOTICE.md](docker/caen/NOTICE.md)).
+2. `docker compose build`, then `docker compose -f docker-compose.yml -f docker-compose.hardware.yml up -d`.
+3. `docker compose exec daq hv-session` (or `daq-session`, or `scope`).
 
 Details, requirements and testing status: [DOCKER.md](DOCKER.md).
 

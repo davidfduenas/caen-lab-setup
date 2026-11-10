@@ -4,3 +4,5 @@ logs/
 docker/caen/*
 !docker/caen/README.md
 !docker/caen/.gitkeep
+!docker/caen/NOTICE.md
+!docker/caen/caen-installed.tgz
