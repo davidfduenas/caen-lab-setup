@@ -81,7 +81,7 @@ Tested, on an ARM Mac with the x86-64 images emulated, using the lab's real CAEN
 - a point written from the `daq` container is read back through Grafana
 - both tmux sessions start inside the container with the three-pane layout (tmux 3.4); the monitor panes then fail with the expected missing-port error, because no devices are attached
 - the HV Python dependencies and the scope viewer's dependencies import
-- installing from original CAEN packages instead of the tarball: tested with dummy packages only, not the real ones
+- (this refers to an optional alternative, not the standard setup) installing from the official CAEN packages instead of the included tarball: only tested with stand-in files, because we do not have those packages. The standard setup uses the included `caen-installed.tgz`, which holds the real libraries from the lab machine, and that is fully tested
 
 Not tested:
 - USB access from the container to the real digitizer and HV supply, including whether the CAEN USB library needs a driver on the host
