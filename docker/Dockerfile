@@ -24,14 +24,19 @@ COPY docker/bin/ /usr/local/bin/
 RUN python3 -m venv /opt/lab/caen-dt5471p-monitor/.venv \
     && /opt/lab/caen-dt5471p-monitor/.venv/bin/pip install --no-cache-dir -r /opt/lab/caen-dt5471p-monitor/requirements.txt
 
-# DAQ programs (need ROOT and the CAEN libraries)
+# DAQ programs (need ROOT and the CAEN libraries).
+# The build fails if the CAEN libraries are missing, unless ALLOW_NO_CAEN=1 (software-only test image).
+ARG ALLOW_NO_CAEN=0
 RUN cd /opt/lab/DAQ_Caen && mkdir -p data logs && \
     if ldconfig -p | grep -q CAENDigitizer; then \
         g++ -O2 -std=c++17 daq_threshold_v1.0.0.cpp -o daq_threshold_v1.0.0 $(root-config --cflags --libs) -lCAENDigitizer && \
         g++ -O2 -std=c++17 utils/read_temp_influx.cpp -o utils/read_temp_influx -lCAENDigitizer -lcurl ; \
-    else \
-        echo "WARNING: CAEN libraries not found - DAQ programs were NOT built. See docker/caen/README.md." ; \
+    elif [ "$ALLOW_NO_CAEN" = "1" ]; then \
+        echo "WARNING: CAEN libraries not found - DAQ programs were NOT built (ALLOW_NO_CAEN=1)." ; \
         touch /opt/lab/NO_CAEN_LIBRARIES ; \
+    else \
+        echo "ERROR: no CAEN libraries in the image. Put caen-installed.tgz (or the original CAEN packages) in docker/caen/ and build again. See docker/caen/README.md. For a software-only test image without them, build with ALLOW_NO_CAEN=1." >&2 ; \
+        exit 1 ; \
     fi
 
 ENV DAQ_DIR=/opt/lab/DAQ_Caen \

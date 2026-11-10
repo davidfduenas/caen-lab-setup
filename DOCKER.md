@@ -36,7 +36,7 @@ docker compose build
 ```
 The first build downloads the ROOT base image (a few GB), so allow some minutes. The build installs the CAEN libraries, compiles `daq_threshold_v1.0.0` and `read_temp_influx`, and sets up the HV monitor's Python environment. It stops with an error if the Digitizer library or its header is not installed afterwards.
 
-If you build without any CAEN files, the image still builds but the DAQ programs are not compiled: the build prints a warning, and the file `/opt/lab/NO_CAEN_LIBRARIES` exists in the container. Add the files and build again.
+**The CAEN files are not in the git repository, so a fresh clone does not have them.** Put them in `docker/caen/` before running `docker compose build`. If the folder holds only its README, the build **fails** with a message saying so. To build a software-only image without them (for example to test InfluxDB and Grafana), use `ALLOW_NO_CAEN=1 docker compose build`. That image has no DAQ programs, and the file `/opt/lab/NO_CAEN_LIBRARIES` exists in the container.
 
 **3. Plug in the devices and name the HV supply** (host udev rule, see above).
 
@@ -64,6 +64,15 @@ Take runs in a `daq-session` pane as described in `DAQ_Caen/SETUP.md`, section 8
 docker compose down        # stops the containers, keeps the InfluxDB and Grafana data
 docker compose down -v     # also deletes the InfluxDB and Grafana data
 ```
+
+## Troubleshooting
+
+| Symptom | Cause and fix |
+|---|---|
+| `docker compose build` stops with "no CAEN libraries in the image" | `docker/caen/` has no CAEN files. Put `caen-installed.tgz` there and build again. |
+| `exec ./daq_threshold_v1.0.0: no such file or directory` | The running image was built without the CAEN libraries (an older build, or `ALLOW_NO_CAEN=1`). Check that `docker/caen/` has the file, then `docker compose build daq` and `docker compose up -d`. |
+| `docker compose exec daq ldconfig -p \| grep -i caen` prints nothing | Same cause as the line above. |
+| The hardware overlay fails to start | `/dev/ttyDT5471P0` does not exist on the host. Name the HV supply first (udev rule). |
 
 ## Changing settings
 

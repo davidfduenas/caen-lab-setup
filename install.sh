@@ -12,6 +12,7 @@ ROOT_VERSION="${ROOT_VERSION:-6.32.04}"
 ROOT_PREFIX="${ROOT_PREFIX:-$HOME/root}"      # must end in /root (the ROOT tarball unpacks to a folder named root)
 INFLUX_DB="${INFLUX_DB:-NOvA_DTG_CAEN}"
 
+CAEN_DIR="$REPO_DIR/docker/caen"              # folder with your CAEN files (see docker/caen/README.md)
 DRY=0; SKIP_DB=0; INSTALL_ROOT=0; BUILD_ONLY=0; DO_UDEV=ask
 
 usage() {
@@ -22,23 +23,27 @@ Usage: ./install.sh [options]
   --skip-influx-grafana   do not install InfluxDB v1 / Grafana (you already have them)
   --install-root          download ROOT automatically (Ubuntu 22.04 / 24.04 only)
   --udev | --no-udev      create / skip the udev rule for the HV supply (default: ask)
+  --caen-dir DIR          folder with your CAEN files: caen-installed.tgz and/or the original
+                          CAEN packages (default: docker/caen). They are installed system-wide.
   --build-only            only compile the DAQ programs and write lab-env.sh
                           (use after installing the CAEN libraries or ROOT by hand)
   -h, --help              show this help
 EOF
 }
 
-for a in "$@"; do
-  case "$a" in
+while (( $# )); do
+  case "$1" in
     --dry-run) DRY=1 ;;
     --skip-influx-grafana) SKIP_DB=1 ;;
     --install-root) INSTALL_ROOT=1 ;;
     --udev) DO_UDEV=yes ;;
     --no-udev) DO_UDEV=no ;;
     --build-only) BUILD_ONLY=1 ;;
+    --caen-dir) [[ $# -ge 2 ]] || { echo "--caen-dir needs a folder" >&2; exit 2; }; CAEN_DIR="$2"; shift ;;
     -h|--help) usage; exit 0 ;;
-    *) echo "Unknown option: $a" >&2; usage >&2; exit 2 ;;
+    *) echo "Unknown option: $1" >&2; usage >&2; exit 2 ;;
   esac
+  shift
 done
 
 say()  { printf '\n==> %s\n' "$*"; }
@@ -71,7 +76,7 @@ ROOT_SETUP=""
 if (( ! BUILD_ONLY )); then
   # -------------------------------------------------------------- apt packages
   say "Installing system packages"
-  PKGS=(tmux git g++ curl gnupg usbutils
+  PKGS=(tmux git g++ curl gnupg usbutils unzip
         python3 python3-venv python3-pip python3-tk python3-numpy python3-matplotlib
         libcurl4-openssl-dev libssl-dev libx11-dev libxpm-dev libxft-dev libxext-dev
         build-essential libusb-1.0-0-dev)
@@ -151,13 +156,24 @@ have_caen() {
     && ldconfig -p 2>/dev/null | grep -q CAENDigitizer
 }
 
+caen_files_present() {
+  compgen -G "$CAEN_DIR/*.tgz" >/dev/null || compgen -G "$CAEN_DIR/*.tar.gz" >/dev/null || \
+  compgen -G "$CAEN_DIR/*.tar.xz" >/dev/null || compgen -G "$CAEN_DIR/*.tar.bz2" >/dev/null || \
+  compgen -G "$CAEN_DIR/*.zip" >/dev/null
+}
+
 say "CAEN libraries"
 CAEN_OK=0
 if have_caen; then
   CAEN_OK=1; echo "found: CAENDigitizer"
+elif caen_files_present; then
+  echo "installing the CAEN libraries from $CAEN_DIR (system-wide, needs sudo)"
+  run $SUDO bash "$REPO_DIR/docker/install-caen.sh" "$CAEN_DIR"
+  if (( DRY )) || have_caen; then CAEN_OK=1; else warn "the CAEN libraries are still not registered after the install"; fi
 else
-  warn "CAENDigitizer library not found. Install CAENVME, CAENComm and CAENDigitizer from CAEN's website (versions the lab uses: DAQ_Caen/SETUP.md, section 2)."
-  warn "Then run: ./install.sh --build-only"
+  warn "CAENDigitizer library not found, and no CAEN files in $CAEN_DIR."
+  warn "Put your CAEN files there (caen-installed.tgz from a working machine, or the original CAENVME / CAENComm / CAENDigitizer packages;"
+  warn "see docker/caen/README.md and DAQ_Caen/SETUP.md, section 2), then run: ./install.sh --build-only"
 fi
 
 # ---------------------------------------------------------------- build

@@ -14,11 +14,12 @@ The DAQ code, utilities and HV monitor were written by **Bruno P. Gelli**. The D
 
 ## Quick start (native install)
 
-1. Install the CAEN libraries first (see "What you must do yourself" below).
-2. Then:
+1. Clone, then put your CAEN files in `docker/caen/` (see "What you must do yourself" below).
+2. Run the installer:
 ```bash
 git clone --recursive https://github.com/davidfduenas/caen-lab-setup.git
 cd caen-lab-setup
+# put your CAEN files in docker/caen/
 ./install.sh
 ```
 For Docker instead, see "Run everything in Docker" below.
@@ -31,14 +32,14 @@ For Docker instead, see "Run everything in Docker" below.
 2. Creates the HV monitor's Python environment and installs its requirements (`influxdb`, `pyserial`, `pyusb`).
 3. Installs InfluxDB v1 and Grafana from their apt repositories, starts them and creates the database `NOvA_DTG_CAEN`.
 4. Finds ROOT. With `--install-root` it downloads ROOT 6.32.04 on Ubuntu 22.04 or 24.04.
-5. Checks for the CAEN libraries.
+5. Installs the CAEN libraries system-wide from the files in `docker/caen/` (or `--caen-dir`), unless they are already installed.
 6. Compiles `daq_threshold_v1.0.0` and `read_temp_influx`.
 7. Adds you to the `dialout` group and, if you agree, creates the udev rule that names the HV supply `/dev/ttyDT5471P0`.
 8. Writes `lab-env.sh` for the launchers in `bin/`.
 
 ## What you must do yourself
 
-- **Install the CAEN libraries** (CAENVME, CAENComm, CAENDigitizer) from CAEN's website, then run `./install.sh --build-only`. The versions the lab uses and how to check them are in [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md), section 2.
+- **Provide the CAEN libraries.** They are CAEN's files and are not in this repository. Put them in `docker/caen/` (git ignores that folder): either `caen-installed.tgz` made on a machine where they work (`tar -czf ~/caen-installed.tgz /usr/lib/libCAEN* /usr/include/CAEN*`), or the original CAENVME, CAENComm and CAENDigitizer packages from CAEN's website. The lab uses CAENVME v4.1.3, CAENComm v1.8.0 and CAENDigitizer v2.19.0; see [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md), section 2. If the libraries are already installed on the machine, `install.sh` detects them and this is not needed.
 - **Install ROOT yourself** on any system other than Ubuntu 22.04/24.04, from <https://root.cern/install/>.
 - **Set up Grafana**: add an InfluxDB data source (`http://localhost:8086`, database `NOvA_DTG_CAEN`) and build or import dashboards.
 - Adapt site-specific settings (serial device, database name, trigger thresholds). They are listed in section 1 of [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md).

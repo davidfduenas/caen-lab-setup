@@ -25,6 +25,8 @@ services:
     build:
       context: .
       dockerfile: docker/Dockerfile
+      args:
+        ALLOW_NO_CAEN: ${ALLOW_NO_CAEN:-0}
     platform: linux/amd64
     depends_on: [influxdb]
     tty: true

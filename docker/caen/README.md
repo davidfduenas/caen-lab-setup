@@ -1,5 +1,9 @@
 # CAEN libraries (supplied by you)
 
+This folder is used by both the Docker build (`docker compose build`) and the native installer (`./install.sh`, which installs the files system-wide with sudo; use `--caen-dir DIR` to read them from another folder).
+
+The files in this folder are not in the git repository, so a fresh clone does not have them: add them before `docker compose build`, or the build stops with an error.
+
 The CAEN libraries are proprietary and are **not** included in this repository or in any published image.
 Download them from CAEN's website (registration required) and place the packages in this folder before
 building the image. Use the same versions as the lab machine where the DAQ works:
