@@ -57,6 +57,18 @@ git pull
 git submodule update --init --recursive
 ```
 
+## Container alternative (Docker)
+
+Instead of `install.sh`, everything can run in containers (InfluxDB, Grafana, and a container with ROOT, the DAQ programs and the HV tools). You still download the CAEN libraries yourself and place them in `docker/caen/`.
+
+```bash
+docker compose build
+docker compose -f docker-compose.yml -f docker-compose.hardware.yml up -d
+docker compose exec daq hv-session
+```
+
+Details, requirements and testing status: [DOCKER.md](DOCKER.md).
+
 ## Testing status
 
 The installer's package, Python and database steps were run in a clean Ubuntu 24.04 container. The CAEN library step, ROOT download, DAQ compilation, udev rule, and all hardware operation have not been tested by the author of these instructions.

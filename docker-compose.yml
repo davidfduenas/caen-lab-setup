@@ -1,0 +1,41 @@
+name: caen-lab
+
+services:
+  influxdb:
+    image: influxdb:1.8
+    restart: unless-stopped
+    environment:
+      INFLUXDB_DB: NOvA_DTG_CAEN
+    ports:
+      - "127.0.0.1:8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+
+  grafana:
+    image: grafana/grafana:11.2.0
+    restart: unless-stopped
+    depends_on: [influxdb]
+    ports:
+      - "127.0.0.1:3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+      - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
+
+  daq:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    platform: linux/amd64
+    depends_on: [influxdb]
+    tty: true
+    stdin_open: true
+    environment:
+      INFLUX_HOST: influxdb
+      INFLUX_DB: NOvA_DTG_CAEN
+    volumes:
+      - ./data:/opt/lab/DAQ_Caen/data
+      - ./logs:/opt/lab/DAQ_Caen/logs
+
+volumes:
+  influxdb-data:
+  grafana-data:
