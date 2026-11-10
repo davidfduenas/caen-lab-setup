@@ -79,7 +79,7 @@ if (( ! BUILD_ONLY )); then
   PKGS=(tmux git g++ curl gnupg usbutils unzip
         python3 python3-venv python3-pip python3-tk python3-numpy python3-matplotlib
         libcurl4-openssl-dev libssl-dev libx11-dev libxpm-dev libxft-dev libxext-dev
-        build-essential libusb-1.0-0-dev)
+        build-essential libusb-1.0-0-dev libtbb-dev)   # libtbb: needed by the ROOT binary tarball (libImt)
   run $SUDO apt-get update
   run $SUDO apt-get install -y "${PKGS[@]}"
 
@@ -172,16 +172,18 @@ elif caen_files_present; then
   if (( DRY )) || have_caen; then CAEN_OK=1; else warn "the CAEN libraries are still not registered after the install"; fi
 else
   warn "CAENDigitizer library not found, and no CAEN files in $CAEN_DIR."
-  warn "Put your CAEN files there (caen-installed.tgz from a working machine, or the original CAENVME / CAENComm / CAENDigitizer packages;"
-  warn "see docker/caen/README.md and DAQ_Caen/SETUP.md, section 2), then run: ./install.sh --build-only"
+  warn "Restore docker/caen/caen-installed.tgz from the repository (git checkout docker/caen/caen-installed.tgz), or put your own CAEN files in that folder"
+  warn "(see docker/caen/README.md and DAQ_Caen/SETUP.md, section 2), then run: ./install.sh --build-only"
 fi
 
 # ---------------------------------------------------------------- build
 say "Building the DAQ programs"
 if [[ -n "$ROOT_SETUP" && ( $CAEN_OK -eq 1 || $DRY -eq 1 ) ]]; then
-  run bash -c 'set +u; source "$1"; cd "$2" &&
+  if ! run bash -c 'set +u; source "$1"; cd "$2" &&
     g++ -O2 -std=c++17 daq_threshold_v1.0.0.cpp -o daq_threshold_v1.0.0 $(root-config --cflags --libs) -lCAENDigitizer &&
-    g++ -O2 -std=c++17 utils/read_temp_influx.cpp -o utils/read_temp_influx -lCAENDigitizer -lcurl' _ "$ROOT_SETUP" "$DAQ_DIR"
+    g++ -O2 -std=c++17 utils/read_temp_influx.cpp -o utils/read_temp_influx -lCAENDigitizer -lcurl' _ "$ROOT_SETUP" "$DAQ_DIR"; then
+    warn "the build FAILED (see the compiler errors above). Fix the cause, then run: ./install.sh --build-only"
+  fi
 else
   warn "skipping the build (needs both ROOT and the CAEN libraries)"
 fi
