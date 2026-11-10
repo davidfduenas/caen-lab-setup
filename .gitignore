@@ -1,3 +1,6 @@
 lab-env.sh
 data/
 logs/
+docker/caen/*
+!docker/caen/README.md
+!docker/caen/.gitkeep

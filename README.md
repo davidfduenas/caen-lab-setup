@@ -76,9 +76,15 @@ git pull
 git submodule update --init --recursive
 ```
 
-## Optional: InfluxDB and Grafana in Docker
+## Optional: run everything in Docker
 
-InfluxDB and Grafana can run in Docker instead of being installed by `install.sh`. See [DOCKER.md](DOCKER.md).
+The whole setup (InfluxDB, Grafana, and a container with ROOT, the CAEN libraries, the DAQ programs and the HV tools) can run in Docker. You supply the CAEN library packages (same versions as the lab machine) in `docker/caen/` before building, and they are installed inside the image. See [DOCKER.md](DOCKER.md).
+
+```bash
+docker compose build
+docker compose -f docker-compose.yml -f docker-compose.hardware.yml up -d
+docker compose exec daq hv-session
+```
 
 ## Testing status
 

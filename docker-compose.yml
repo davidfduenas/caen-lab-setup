@@ -21,6 +21,21 @@ services:
       - grafana-data:/var/lib/grafana
       - ./docker/grafana/provisioning:/etc/grafana/provisioning:ro
 
+  daq:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    platform: linux/amd64
+    depends_on: [influxdb]
+    tty: true
+    stdin_open: true
+    environment:
+      INFLUX_HOST: influxdb
+      INFLUX_DB: NOvA_DTG_CAEN
+    volumes:
+      - ./data:/opt/lab/DAQ_Caen/data
+      - ./logs:/opt/lab/DAQ_Caen/logs
+
 volumes:
   influxdb-data:
   grafana-data:
