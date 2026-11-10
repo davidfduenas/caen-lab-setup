@@ -12,18 +12,39 @@ One place to install and run a CAEN HV power supply (DT5471P) and a CAEN DT5730S
 
 The DAQ code, utilities and HV monitor were written by **Bruno P. Gelli**. The DAQ and monitor repos here are forks of his, with small lab-specific changes on the `lab-setup` branches. Please credit his original repositories when using or citing this work.
 
-## Quick start (native install)
+## Two ways to set this up
 
-1. Clone the repository. The CAEN libraries are included (`docker/caen/caen-installed.tgz`).
-2. Run the installer:
+Choose one:
+
+- **A. Install directly on the computer** (this section). A script installs the programs on your Debian/Ubuntu machine. This is the option that does not depend on USB inside a container.
+- **B. Use Docker.** The programs run inside containers instead. Skip this section and go to [Run everything in Docker](#run-everything-in-docker) further down.
+
+## Quick start (option A: install directly)
+
+Open a terminal and run these three commands:
+
 ```bash
 git clone --recursive https://github.com/davidfduenas/caen-lab-setup.git
 cd caen-lab-setup
 ./install.sh
 ```
-For Docker instead, see "Run everything in Docker" below.
 
-`./install.sh --dry-run` prints every command without running anything. Other options: `--install-root`, `--skip-influx-grafana`, `--udev`, `--no-udev`, `--build-only` (see `./install.sh --help`).
+The CAEN libraries are included in the repository, so there is nothing else to download. The installer asks for your password (it uses `sudo`) and may ask whether to create the udev rule for the HV supply.
+
+### Installer options (optional)
+
+You normally run `./install.sh` with no options. To change what it does, add one of these after it, for example `./install.sh --dry-run`:
+
+| Option | What it does |
+|---|---|
+| `--dry-run` | Prints everything the installer would do, without doing any of it. A safe preview. |
+| `--install-root` | Also downloads ROOT (a large download; Ubuntu 22.04 and 24.04 only). |
+| `--skip-influx-grafana` | Does not install InfluxDB and Grafana, for when you already have them. |
+| `--udev` or `--no-udev` | Creates, or skips, the rule that gives the HV supply its fixed name. Without either option, the installer asks you. |
+| `--build-only` | Only compiles the DAQ programs and writes the settings file. |
+| `--caen-dir FOLDER` | Reads the CAEN files from another folder instead of `docker/caen`. |
+
+`./install.sh --help` shows the same list.
 
 ## What the installer does
 
