@@ -42,11 +42,30 @@ cd caen-lab-setup
 
 ## Running
 
-```bash
-bin/hv-session     # HV supply: three tmux panes (monitor, voltage, current)
-bin/daq-session    # digitizer: temperature monitor plus two panes for runs
-bin/scope          # live waveform viewer
-```
+There is one command per device, plus a viewer. Run them from the `caen-lab-setup` folder, after `./install.sh` has finished. Each of the first two opens one terminal window split into three panes (this is tmux).
+
+**1. HV power supply: `bin/hv-session`**
+
+All three panes are connected to the supply. You use them for different jobs:
+
+| Pane | What you do there |
+|---|---|
+| Top | type `start` to begin logging voltage and current to Grafana |
+| Bottom left | set the voltage: `set vset 200`, then `on`, then ramp up in steps |
+| Bottom right | set the current limit: `set iset 200` |
+
+**2. Digitizer: `bin/daq-session`**
+
+| Pane | What you do there |
+|---|---|
+| Top | nothing: the temperature monitor starts by itself |
+| Bottom left and right | type the DAQ run commands (see `DAQ_Caen/SETUP.md`, section 8) |
+
+**3. Live waveform viewer: `bin/scope`**
+
+Open it in a separate terminal while a run is writing data. It shows the latest waveforms from the newest `.txt` file in `DAQ_Caen/data`, so it only has something to show once a run started with `--txt` is under way.
+
+To leave a tmux window without stopping it, press `Ctrl-b`, then `d`. If you use the container, put `docker compose exec daq` in front of each command, for example `docker compose exec daq hv-session`.
 
 Operating procedure (HV ramping, DAQ commands and options): [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md), section 8. It is based on the lab's original [Operating Instructions](https://docs.google.com/document/d/1mQslpxoBDvs9HkDt69Xr__bFLzD0LlA4ytbHnuLEeo8/edit?tab=t.0) (Google Doc, may require access).
 
