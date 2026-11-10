@@ -10,7 +10,7 @@ Three containers, started with Docker Compose:
 
 ## Requirements
 - A **Linux x86-64** machine with Docker and Docker Compose, for real hardware. The CAEN libraries and the ROOT base image are x86-64 only. On macOS, Windows or ARM you can build and test the software side, but USB devices cannot be passed through in the usual way.
-- The **CAEN libraries** (CAENVME v4.1.3, CAENComm v1.8.0, CAENDigitizer v2.19.0, the versions the lab uses), which you download yourself from CAEN (registration required). Put them in `docker/caen/` before building (see `docker/caen/README.md`). They are installed inside the image during the build, and they are not in this repository or in any published image.
+- The **CAEN libraries** (CAENVME v4.1.3, CAENComm v1.8.0, CAENDigitizer v2.19.0, the versions the lab uses), which you download yourself from CAEN (registration required). Put them in `docker/caen/` before building (see `docker/caen/README.md`; you can also supply a tarball of the files installed on a working machine). They are installed inside the image during the build, and they are not in this repository or in any published image.
 - On the host, the udev rule that names the HV supply `/dev/ttyDT5471P0` (see `DAQ_Caen/SETUP.md`, section 6).
 
 ## Build and start
