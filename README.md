@@ -35,7 +35,7 @@ cd caen-lab-setup
 
 ## What you must do yourself
 
-- **Install the CAEN libraries** by following Bruno Gelli's instructions: <https://github.com/BrunoGelli/Legacy-AmBE_DAQ_DQM> (summary in [CONTAINER.md](CONTAINER.md)). Then run `./install.sh --build-only`.
+- **Install the CAEN libraries** (CAENVME, CAENComm, CAENDigitizer) from CAEN's website, then run `./install.sh --build-only`. The versions the lab uses and how to check them are in [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md), section 2.
 - **Install ROOT yourself** on any system other than Ubuntu 22.04/24.04, from <https://root.cern/install/>.
 - **Set up Grafana**: add an InfluxDB data source (`http://localhost:8086`, database `NOvA_DTG_CAEN`) and build or import dashboards.
 - Adapt site-specific settings (serial device, database name, trigger thresholds). They are listed in section 1 of [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md).
@@ -65,7 +65,7 @@ All three panes are connected to the supply. You use them for different jobs:
 
 Open it in a separate terminal while a run is writing data. It shows the latest waveforms from the newest `.txt` file in `DAQ_Caen/data`, so it only has something to show once a run started with `--txt` is under way.
 
-To leave a tmux window without stopping it, press `Ctrl-b`, then `d`. If you use Bruno's container, see [CONTAINER.md](CONTAINER.md).
+To leave a tmux window without stopping it, press `Ctrl-b`, then `d`.
 
 Operating procedure (HV ramping, DAQ commands and options): [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md), section 8. It is based on the lab's original [Operating Instructions](https://docs.google.com/document/d/1mQslpxoBDvs9HkDt69Xr__bFLzD0LlA4ytbHnuLEeo8/edit?tab=t.0) (Google Doc, may require access).
 
@@ -76,11 +76,9 @@ git pull
 git submodule update --init --recursive
 ```
 
-## CAEN libraries and container (Bruno's instructions)
+## Optional: InfluxDB and Grafana in Docker
 
-The CAEN libraries, and the Apptainer container that contains them and ROOT, are installed following **Bruno P. Gelli's** repository: <https://github.com/BrunoGelli/Legacy-AmBE_DAQ_DQM>. His steps, library versions and install order are summarized in [CONTAINER.md](CONTAINER.md). His repository is the reference.
-
-Optional: InfluxDB and Grafana can run in Docker instead of being installed by `install.sh`. See [DOCKER.md](DOCKER.md).
+InfluxDB and Grafana can run in Docker instead of being installed by `install.sh`. See [DOCKER.md](DOCKER.md).
 
 ## Testing status
 

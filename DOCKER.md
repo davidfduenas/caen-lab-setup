@@ -1,6 +1,6 @@
 # InfluxDB and Grafana with Docker Compose (optional)
 
-This is an alternative to the InfluxDB and Grafana installation done by `install.sh`. It is not related to the CAEN libraries or the DAQ container, which follow Bruno's instructions (see [CONTAINER.md](CONTAINER.md)).
+This is an alternative to the InfluxDB and Grafana installation done by `install.sh`. It is not related to the CAEN libraries or the DAQ.
 
 | Service | What it is |
 |---|---|

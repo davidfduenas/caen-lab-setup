@@ -74,8 +74,7 @@ if (( ! BUILD_ONLY )); then
   PKGS=(tmux git g++ curl gnupg usbutils
         python3 python3-venv python3-pip python3-tk python3-numpy python3-matplotlib
         libcurl4-openssl-dev libssl-dev libx11-dev libxpm-dev libxft-dev libxext-dev
-        # build dependencies from BrunoGelli/Legacy-AmBE_DAQ_DQM (Singularity.base.def)
-        build-essential cmake wget libusb-1.0-0-dev libtbb-dev libboost-dev libxrender1)
+        build-essential libusb-1.0-0-dev)
   run $SUDO apt-get update
   run $SUDO apt-get install -y "${PKGS[@]}"
 
@@ -157,8 +156,7 @@ CAEN_OK=0
 if have_caen; then
   CAEN_OK=1; echo "found: CAENDigitizer"
 else
-  warn "CAENDigitizer library not found. Install the CAEN libraries following Bruno Gelli's instructions:"
-  warn "  https://github.com/BrunoGelli/Legacy-AmBE_DAQ_DQM  (README.md and Singularity.def; summary in CONTAINER.md)"
+  warn "CAENDigitizer library not found. Install CAENVME, CAENComm and CAENDigitizer from CAEN's website (versions the lab uses: DAQ_Caen/SETUP.md, section 2)."
   warn "Then run: ./install.sh --build-only"
 fi
 
