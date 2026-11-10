@@ -1,0 +1,12 @@
+[submodule "DAQ_Caen"]
+	path = DAQ_Caen
+	url = https://github.com/davidfduenas/DAQ_Caen.git
+	branch = lab-setup
+[submodule "caen-dt5471p-monitor"]
+	path = caen-dt5471p-monitor
+	url = https://github.com/davidfduenas/caen-dt5471p-monitor.git
+	branch = lab-setup
+[submodule "tmuxsessions"]
+	path = tmuxsessions
+	url = https://github.com/davidfduenas/tmuxsessions.git
+	branch = main

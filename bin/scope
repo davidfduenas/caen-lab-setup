@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+# Live waveform viewer for the newest data/*.txt file.
+here="$(cd "$(dirname "$(readlink -f "$0")")/.." && pwd)"
+[[ -f "$here/lab-env.sh" ]] || { echo "lab-env.sh missing: run ./install.sh first" >&2; exit 1; }
+source "$here/lab-env.sh"
+exec python3 "$DAQ_DIR/scope.py" "$@"
