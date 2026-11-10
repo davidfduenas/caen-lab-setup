@@ -68,7 +68,9 @@ All three panes are connected to the supply. You use them for different jobs:
 
 Open it in a separate terminal while a run is writing data. It shows the latest waveforms from the newest `.txt` file in `DAQ_Caen/data`, so it only has something to show once a run started with `--txt` is under way.
 
-To leave a tmux window without stopping it, press `Ctrl-b`, then `d`.
+**One session per terminal.** Each of `bin/hv-session` and `bin/daq-session` fills the terminal window you start it in. To use both at once, open two terminal windows or tabs and start one in each. They are separate tmux sessions and do not interfere with each other. With one terminal, start a session, press `Ctrl-b` then `d` to leave it (it keeps running in the background), then start the other. Running a launcher again re-attaches to the existing session. The layout is one wide pane on top and two panes below it.
+
+**Without devices attached** (for example when testing on a laptop) the panes start but cannot reach the hardware: the HV panes end with `could not open port /dev/ttyDT5471P0`, and the digitizer's temperature pane reports that it cannot open the digitizer. This is expected until the devices are connected.
 
 Operating procedure (HV ramping, DAQ commands and options): [DAQ_Caen/SETUP.md](https://github.com/davidfduenas/DAQ_Caen/blob/lab-setup/SETUP.md), section 8. It is based on the lab's original [Operating Instructions](https://docs.google.com/document/d/1mQslpxoBDvs9HkDt69Xr__bFLzD0LlA4ytbHnuLEeo8/edit?tab=t.0) (Google Doc, may require access).
 
@@ -85,7 +87,7 @@ The whole setup (InfluxDB, Grafana, and a container with ROOT, the CAEN librarie
 
 1. The CAEN libraries are included (`docker/caen/caen-installed.tgz`; see [docker/caen/NOTICE.md](docker/caen/NOTICE.md)).
 2. `docker compose build`, then `docker compose -f docker-compose.yml -f docker-compose.hardware.yml up -d`.
-3. `docker compose exec daq hv-session` (or `daq-session`, or `scope`).
+3. Open one terminal per tool: `docker compose exec daq hv-session` in one, `docker compose exec daq daq-session` in another, and (optionally) `docker compose exec daq scope` in a third. It is a single container; you open several terminals into it.
 
 Details, requirements and testing status: [DOCKER.md](DOCKER.md).
 
@@ -93,7 +95,7 @@ Details, requirements and testing status: [DOCKER.md](DOCKER.md).
 
 Tested, with the lab's real CAEN libraries (VME v4.1.3, Comm v1.8.0, Digitizer v2.19.0), in clean x86-64 Ubuntu 24.04 containers on an ARM Mac (emulated):
 - **`install.sh` (native):** system packages, the HV monitor's Python environment, the ROOT 6.32.04 download (`--install-root`), the system-wide CAEN install from `docker/caen/caen-installed.tgz`, and compiling `daq_threshold_v1.0.0` and `read_temp_influx`. Afterwards the libraries are registered, `lab-env.sh` is written, the DAQ prints its usage, and without a device it fails cleanly when opening the digitizer. The InfluxDB and Grafana apt installation was tested earlier (on ARM Ubuntu 24.04; `systemctl` does not exist in containers, so starting the services was not tested).
-- **Docker:** a fresh `git clone --recursive` followed by `docker compose build` and `docker compose up -d`: the CAEN libraries install, both DAQ programs compile and run, InfluxDB creates the database, Grafana has the data source, and the tmux session starts.
+- **Docker:** a fresh `git clone --recursive` followed by `docker compose build` and `docker compose up -d`: the CAEN libraries install, both DAQ programs compile and run, InfluxDB creates the database, Grafana has the data source, and both tmux sessions start with three panes.
 
 Not tested:
 - Anything with the real devices attached, including USB access from Docker.

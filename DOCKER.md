@@ -40,6 +40,9 @@ docker compose exec daq hv-session      # HV supply: three tmux panes (monitor, 
 docker compose exec daq daq-session     # digitizer: temperature monitor plus two panes for runs
 docker compose exec daq scope           # live waveform viewer (needs the overlay and `xhost +local:docker` on the host)
 ```
+There is only one `daq` container. To use the HV and the digitizer at the same time, open **two terminal windows or tabs** and run one command in each. Each one opens its own tmux session in its terminal, filling the window with one wide pane on top and two below. With a single terminal, start a session, press `Ctrl-b` then `d` to leave it (it keeps running), then start the other. Running a command again re-attaches to the existing session.
+
+Without the devices attached (for example on a laptop test) the panes start but cannot reach the hardware: the HV panes end with `could not open port /dev/ttyDT5471P0`, and the digitizer's temperature pane reports that it cannot open the digitizer. This is expected.
 Take runs in a `daq-session` pane as described in `DAQ_Caen/SETUP.md`, section 8. The `daq` container starts in `/opt/lab/DAQ_Caen`, so `./daq_threshold_v1.0.0 -n 100 -m sw -c 0 -r 1500 --txt data/test.txt` works as written.
 
 - **Data and logs** are written to `./data` and `./logs` next to `docker-compose.yml`. The container runs as root, so these files are owned by root on the host.
@@ -60,6 +63,7 @@ docker compose down -v     # also deletes the InfluxDB and Grafana data
 | `docker compose build` stops with "no CAEN libraries in the image" | `docker/caen/` has no CAEN files. Put `caen-installed.tgz` there and build again. |
 | `exec ./daq_threshold_v1.0.0: no such file or directory` | The running image was built without the CAEN libraries (an older build, or `ALLOW_NO_CAEN=1`). Check that `docker/caen/` has the file, then `docker compose build daq` and `docker compose up -d`. |
 | `docker compose exec daq ldconfig -p \| grep -i caen` prints nothing | Same cause as the line above. |
+| `hv-session` or `daq-session` shows the wrong number of panes, or `size missing` | An old copy of the launchers (before the tmux 3.4 layout fix). Run `git pull`, `git submodule update --init --recursive`, then `docker compose build`. |
 | The hardware overlay fails to start | `/dev/ttyDT5471P0` does not exist on the host. Name the HV supply first (udev rule). |
 
 ## Changing settings
@@ -73,7 +77,7 @@ Tested, on an ARM Mac with the x86-64 images emulated, using the lab's real CAEN
 - both programs run and print their usage; the DAQ calls the CAEN library and fails cleanly when no digitizer is attached
 - all three services start; the database is created and the Grafana data source is provisioned
 - a point written from the `daq` container is read back through Grafana
-- the tmux session starts inside the container
+- both tmux sessions start inside the container with the three-pane layout (tmux 3.4); the monitor panes then fail with the expected missing-port error, because no devices are attached
 - the HV Python dependencies and the scope viewer's dependencies import
 - installing from original CAEN packages instead of the tarball: tested with dummy packages only, not the real ones
 
