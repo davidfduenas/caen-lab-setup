@@ -83,6 +83,8 @@ git submodule update --init --recursive
 
 ## Run everything in Docker
 
+> **Status:** the Docker setup has been tested, apart from one thing. The software side works: the image builds, the CAEN libraries install, the DAQ programs compile, and InfluxDB, Grafana and the tmux sessions start. What we do **not** know yet is whether **USB access from Docker** to the real digitizer and HV supply works. That needs the devices on a native Linux machine, and it is the only open worry. If USB does not work from the container, use the native install (`./install.sh`), which does not depend on it.
+
 The whole setup (InfluxDB, Grafana, and a container with ROOT, the CAEN libraries, the DAQ programs and the HV tools) can run in Docker. In short:
 
 1. The CAEN libraries are included (`docker/caen/caen-installed.tgz`; see [docker/caen/NOTICE.md](docker/caen/NOTICE.md)).
