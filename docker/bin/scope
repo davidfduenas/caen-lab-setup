@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-# Live waveform viewer (needs X11 passthrough, see DOCKER.md).
-exec python3 /opt/lab/DAQ_Caen/scope.py "$@"

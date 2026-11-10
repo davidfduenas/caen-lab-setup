@@ -1,3 +1,0 @@
-#!/usr/bin/env bash
-# Start the HV tmux session (run inside the container).
-exec /opt/lab/tmuxsessions/start_hvcaen.sh "$@"
