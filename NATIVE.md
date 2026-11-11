@@ -37,7 +37,7 @@ You normally run `./install.sh` with no options. To change what it does, add one
 4. Finds ROOT. With `--install-root` it downloads ROOT 6.32.04 on Ubuntu 22.04 or 24.04.
 5. Installs the CAEN libraries system-wide from `docker/caen/` (or `--caen-dir`), unless they are already installed.
 6. Compiles `daq_threshold_v1.0.0` and `read_temp_influx`.
-7. Adds you to the `dialout` group and, if you agree, creates the udev rule that names the HV supply `/dev/ttyDT5471P0`.
+7. Adds you to the `dialout` group and, if you agree, creates the udev rule that names the HV supply `/dev/ttyDT5471P0`. For this the installer asks you to **unplug** the HV supply, press Enter, then **plug it in** and press Enter again. It compares the USB devices before and after, and proposes the new device's ID (`vendor:product`, for example `21e1:0006`); you confirm with Enter. If it cannot tell, it shows the USB device list and asks you to type the supply's ID, or you press Enter to skip. You can run this step later with `./install.sh --udev`.
 8. Writes `lab-env.sh` for the launchers in `bin/`.
 
 ## What you must do yourself

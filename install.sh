@@ -212,11 +212,31 @@ if (( ! BUILD_ONLY )); then
 
   setup_udev() {
     command -v lsusb >/dev/null 2>&1 || { warn "lsusb not available; skipping udev rule"; return; }
-    echo "Plug in the HV supply and press Enter."; read -r _
-    lsusb
-    local id=""
-    read -rp "Enter the supply's USB ID (vendor:product, e.g. 21e1:0006): " id
-    [[ "$id" =~ ^[0-9a-fA-F]{4}:[0-9a-fA-F]{4}$ ]] || { warn "not a valid ID; skipping udev rule"; return; }
+    local before after new ids id="" ans
+    echo "This step finds the HV supply by comparing the USB devices before and after you plug it in."
+    echo "1) UNPLUG the HV supply (leave the digitizer as it is), then press Enter."; read -r _
+    before="$(lsusb | sort)"
+    echo "2) Now PLUG IN the HV supply, wait a few seconds, then press Enter."; read -r _
+    sleep 2
+    after="$(lsusb | sort)"
+    new="$(comm -13 <(echo "$before") <(echo "$after"))"
+    ids="$(echo "$new" | grep -oE '[0-9a-fA-F]{4}:[0-9a-fA-F]{4}' || true)"
+    if [[ -n "$ids" && "$(echo "$ids" | wc -l)" -eq 1 ]]; then
+      echo "New USB device found:"; echo "  $new"
+      read -rp "Is this the HV supply? [Y/n] " ans
+      if [[ ! "$ans" =~ ^[Nn] ]]; then id="$ids"; fi
+    elif [[ -z "$ids" ]]; then
+      echo "No new USB device appeared. Check the cable and that the supply is on."
+    else
+      echo "More than one new USB device appeared:"; echo "$new" | sed 's/^/  /'
+    fi
+    if [[ -z "$id" ]]; then
+      echo "Current USB devices:"; lsusb | sed 's/^/  /'
+      echo "Type the HV supply's ID (the vendor:product part after 'ID', e.g. 21e1:0006), or press Enter to skip."
+      read -rp "USB ID: " id
+      [[ -n "$id" ]] || { echo "skipped (run ./install.sh --udev later to create the rule)"; return; }
+    fi
+    [[ "$id" =~ ^[0-9a-fA-F]{4}:[0-9a-fA-F]{4}$ ]] || { warn "'$id' is not a valid ID; skipping the udev rule"; return; }
     local rule="SUBSYSTEM==\"tty\", ATTRS{idVendor}==\"${id%%:*}\", ATTRS{idProduct}==\"${id##*:}\", SYMLINK+=\"ttyDT5471P0\", MODE=\"0666\", ENV{ID_MM_DEVICE_IGNORE}=\"1\""
     echo "$rule" | $SUDO tee /etc/udev/rules.d/99-caen.rules >/dev/null
     $SUDO udevadm control --reload-rules && $SUDO udevadm trigger
